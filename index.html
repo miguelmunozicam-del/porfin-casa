@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>¡Por Fin!</title>
+<meta name="description" content="Orden en casa, por puntos.">
+<meta name="theme-color" content="#1C2C5B">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="¡Por Fin!">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
+</head>
+<body>
+<style>
+/* Layout: app de una columna (máx. 720 px), mobile-first, con barra fija inferior (botón principal + navegación) en la zona del pulgar. */
+:root{
+  --fondo:#FFFFFF; --superficie:#F5F6FA; --linea:#E1E4EC; --texto:#1A1A1A; --texto-suave:#5B6275;
+  --rojo:#C8102E; --rojo-hover:#B01E2D; --sobre-rojo:#FFFFFF; --azul:#1C2C5B; --sobre-azul:#FFFFFF;
+  --ok:#1E7B3A; --aviso:#8F5A00; --error:#C8102E;
+  --ok-fondo:#E7F3EA; --aviso-fondo:#FBF1DE; --error-fondo:#FBE7EA;
+  --radio:14px; --sombra:0 2px 8px rgba(0,0,0,.08);
+  --fuente:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --fondo:#121418; --superficie:#1E2128; --linea:#2C313B; --texto:#E8EAF0; --texto-suave:#A3A9B8;
+  --rojo:#FF6B6B; --rojo-hover:#FF8A80; --sobre-rojo:#121418; --azul:#8EA2E8; --sobre-azul:#121418;
+  --ok:#4CC77A; --aviso:#F2B84B; --error:#FF6B6B;
+  --ok-fondo:#17301F; --aviso-fondo:#33290F; --error-fondo:#3A1A1D; --sombra:0 2px 8px rgba(0,0,0,.4);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --fondo:#121418; --superficie:#1E2128; --linea:#2C313B; --texto:#E8EAF0; --texto-suave:#A3A9B8;
+  --rojo:#FF6B6B; --rojo-hover:#FF8A80; --sobre-rojo:#121418; --azul:#8EA2E8; --sobre-azul:#121418;
+  --ok:#4CC77A; --aviso:#F2B84B; --error:#FF6B6B;
+  --ok-fondo:#17301F; --aviso-fondo:#33290F; --error-fondo:#3A1A1D; --sombra:0 2px 8px rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--fondo)}
+body{color:var(--texto);font-family:var(--fuente);font-size:16px;line-height:1.5;margin:0}
+.franja{height:6px;background:repeating-linear-gradient(90deg,var(--rojo) 0 18px,var(--fondo) 18px 36px);border-bottom:2px solid var(--azul)}
+main{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 180px;display:flex;flex-direction:column;gap:24px}
+h1,h2,h3{line-height:1.2;margin:0;text-wrap:balance;color:var(--azul)}
+h1{font-size:24px}h2{font-size:18px}h3{font-size:16px}
+p{margin:0}
+.suave{color:var(--texto-suave);font-size:14px}
+.num{font-variant-numeric:tabular-nums}
+section{display:flex;flex-direction:column;gap:12px}
+.cab{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.tarjeta{background:var(--superficie);border-radius:var(--radio);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.marcador{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;align-items:center}
+.cifra{font-size:40px;font-weight:800;line-height:1;color:var(--azul);font-variant-numeric:tabular-nums}
+.premio{border:2px solid var(--azul);border-radius:var(--radio);padding:12px 16px;display:flex;gap:12px;align-items:center}
+.premio b{color:var(--azul)}
+.aviso-banda{border-radius:var(--radio);padding:12px 16px;background:var(--aviso-fondo);color:var(--texto)}
+.aviso-banda strong{color:var(--aviso)}
+.fila{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fila>*{min-width:0}
+.entre{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.lista{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.item{background:var(--superficie);border-radius:var(--radio);padding:12px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.item .t{font-weight:600}
+.pts{font-weight:800;color:var(--azul);font-variant-numeric:tabular-nums;white-space:nowrap}
+button,.boton{font:inherit;font-size:16px;min-height:44px;border-radius:var(--radio);border:2px solid transparent;padding:8px 16px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.b-prin{background:var(--rojo);color:var(--sobre-rojo);min-height:52px;width:100%}
+.b-prin:hover{background:var(--rojo-hover)}
+.b-sec{background:transparent;color:var(--azul);border-color:var(--azul)}
+.b-ok{background:var(--ok);color:var(--fondo);flex:1}
+.b-no{background:transparent;color:var(--error);border-color:var(--error);flex:1}
+.b-peligro{background:var(--error);color:var(--sobre-rojo)}
+.b-texto{background:transparent;color:var(--azul);padding:8px;text-decoration:underline;text-underline-offset:3px}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,.chip:focus-visible{outline:3px solid var(--azul);outline-offset:2px}
+button[disabled]{opacity:.5;cursor:not-allowed}
+.estado{display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:600;padding:2px 10px;border-radius:999px;white-space:nowrap}
+.e-ok{background:var(--ok-fondo);color:var(--ok)}
+.e-pend{background:var(--aviso-fondo);color:var(--aviso)}
+.e-no{background:var(--error-fondo);color:var(--error)}
+.barra{height:8px;background:var(--linea);border-radius:99px;overflow:hidden}
+.barra>i{display:block;height:100%;background:var(--azul);border-radius:99px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.chip{flex:none;min-height:44px;padding:8px 14px;border-radius:999px;border:2px solid var(--linea);background:var(--fondo);color:var(--texto);font-weight:600;font-size:14px}
+.chip[aria-pressed="true"]{border-color:var(--azul);background:var(--azul);color:var(--sobre-azul)}
+.tarea-btn{width:100%;justify-content:space-between;text-align:left;background:var(--superficie);color:var(--texto);min-height:56px;font-weight:500}
+.tarea-btn:hover{border-color:var(--azul)}
+.tarea-btn small{display:block;color:var(--texto-suave);font-size:14px;font-weight:400}
+label{font-weight:600;font-size:14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+input,select,textarea{font:inherit;font-size:16px;min-height:44px;padding:8px 12px;border-radius:10px;border:2px solid var(--linea);background:var(--fondo);color:var(--texto);width:100%;min-width:0}
+input[type=checkbox],input[type=radio]{width:22px;min-height:22px;height:22px;accent-color:var(--azul);flex:none}
+.check{flex-direction:row;align-items:center;gap:10px;font-weight:500;font-size:16px;min-height:44px}
+.rejilla{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.motivos{display:flex;flex-direction:column;gap:4px;border:0;margin:0;padding:0}
+.motivos legend{font-weight:600;margin-bottom:4px}
+.error-txt{color:var(--error);font-size:14px;font-weight:600}
+details{background:var(--superficie);border-radius:var(--radio)}
+details>summary{cursor:pointer;padding:14px 16px;min-height:44px;font-weight:700;color:var(--azul);list-style-position:inside}
+details>.cuerpo{padding:0 16px 16px;display:flex;flex-direction:column;gap:12px}
+.ranking-pos{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--azul);color:var(--sobre-azul);font-weight:800;flex:none}
+.desglose{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:14px}
+.desglose dt{color:var(--texto-suave)}
+.desglose dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.pos{color:var(--ok)}.neg{color:var(--error)}
+.dock{position:fixed;left:0;right:0;bottom:0;background:var(--fondo);border-top:1px solid var(--linea);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));z-index:5}
+.dock-in{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:8px;padding-top:8px}
+nav{display:grid;grid-template-columns:repeat(3,1fr)}
+nav button{background:transparent;color:var(--texto-suave);flex-direction:column;gap:0;font-size:13px;min-height:52px;padding:4px}
+nav button[aria-current="page"]{color:var(--azul)}
+nav button[aria-current="page"] .ico{background:var(--superficie)}
+nav .ico{font-size:20px;line-height:1;padding:2px 14px;border-radius:99px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(150px + env(safe-area-inset-bottom,0px));background:var(--texto);color:var(--fondo);border-radius:var(--radio);padding:8px 8px 8px 16px;display:flex;gap:12px;align-items:center;width:max-content;max-width:min(92vw,560px);box-shadow:var(--sombra);z-index:9}
+.toast button{background:transparent;color:var(--fondo);text-decoration:underline;min-height:44px}
+.demo{border:2px dashed var(--aviso);border-radius:var(--radio);padding:12px 16px;display:flex;flex-direction:column;gap:8px}
+.vacio{text-align:center;padding:24px 16px;color:var(--texto-suave);display:flex;flex-direction:column;gap:8px;align-items:center}
+.vacio .ico{font-size:32px}
+.portada{display:flex;flex-direction:column;gap:16px;padding-top:24px}
+.portada .logo{font-size:44px;font-weight:900;color:var(--rojo);line-height:1;letter-spacing:-.02em}
+textarea{min-height:120px;font-family:ui-monospace,monospace;font-size:13px}
+@media (prefers-reduced-motion:no-preference){.toast{animation:sube .2s ease-out}@keyframes sube{from{transform:translate(-50%,12px);opacity:0}}}
+.enlace{display:block;padding:10px 12px;border-radius:10px;background:var(--superficie);border:1px solid var(--linea);font-size:14px;overflow-wrap:anywhere;user-select:all}
+.codigo{font-size:28px;letter-spacing:.3em;text-align:center;font-variant-numeric:tabular-nums}
+body.ocupado{cursor:progress}
+@media (prefers-reduced-motion:no-preference){body.ocupado .franja{animation:carga 1s linear infinite}@keyframes carga{to{background-position:36px 0}}}
+</style>
+
+<div class="franja" aria-hidden="true"></div>
+<main id="app" aria-live="polite"></main>
+<div class="dock" id="dock" hidden></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.4/dist/umd/supabase.js"></script>
+<script>
+/* ¡Por Fin! · v1.0 · MIT · Miguel Muñoz
+   Dos modos con la misma interfaz:
+   · nube  → Supabase (acceso con código por email, datos compartidos por toda la familia).
+   · local → demo o casa guardada solo en este dispositivo (localStorage).
+   La lógica de estados (aprobada, rechazada, silencio, sanciones) se calcula igual en ambos
+   a partir de fechas y votos. En la nube, el servidor fija las horas, los puntos y quién valida. */
+
+const CFG=Object.assign({url:'',key:''},window.PORFIN_CONFIG||{});
+const KEY='porfin:v1', KPREF='porfin:prefs', H=3600e3, D=24*H;
+const MOTIVOS=['No está hecha','Está a medias o mal hecha','La hizo otra persona','Duplicada (ya anotada)','Otro'];
+const ESCALAS={c:['','Fácil','Requiere cuidado','Requiere habilidad o esfuerzo'],t:['','Menos de 10 min','10-30 min','Más de 30 min'],m:['','Neutra','Pesada o aburrida','Desagradable']};
+const CATALOGO=[
+['Cocina','Poner la mesa',1,1,1,4],['Cocina','Recoger la mesa',1,1,1],['Cocina','Cargar el lavavajillas',1,1,3],['Cocina','Vaciar el lavavajillas',1,1,3],
+['Cocina','Fregar a mano (ollas, sartenes)',1,2,3],['Cocina','Cocinar comida o cena familiar',3,3,1],['Cocina','Limpiar encimera y fogones',1,2,2],
+['Cocina','Limpiar el horno',2,3,3],['Cocina','Limpiar el interior de la nevera',2,2,3],
+['Ropa','Poner una lavadora',1,1,3],['Ropa','Tender la ropa',1,2,2],['Ropa','Recoger y doblar la ropa',1,2,3],['Ropa','Planchar (una tanda)',2,3,3],['Ropa','Cambiar las sábanas de una cama',2,1,2],
+['Limpieza','Barrer o aspirar una zona común',1,2,2],['Limpieza','Fregar el suelo de una zona común',1,2,2],['Limpieza','Quitar el polvo del salón',1,2,1],['Limpieza','Limpiar cristales y ventanas',2,3,2],['Limpieza','Ordenar el salón',1,1,1],
+['Baños','Limpiar un baño completo',2,2,3],['Baños','Limpiar el inodoro',1,1,3],['Baños','Reponer papel, jabón y toallas',1,1,1],
+['Basura','Bajar la basura',1,1,2],['Basura','Bajar el reciclaje (envases, papel, vidrio)',1,1,2],
+['Compras','Hacer la compra semanal',2,3,1],['Compras','Compra rápida de algo que falta',1,1,1],['Compras','Colocar la compra en despensa y nevera',1,1,3],
+['Mantenimiento','Pequeña reparación (bombilla, tornillo, pila)',2,1,1],['Mantenimiento','Regar las plantas',1,1,1],['Mantenimiento','Limpiar terraza o balcón',2,2,2],['Mantenimiento','Gestión doméstica (cita, recibo, trámite)',2,2,2]
+];
+const CATALOGO_OBJ=()=>CATALOGO.map(([cat,nombre,c,t,m,aj])=>({cat,nombre,c,t,m,ajuste:aj??null}));
+const PARAMS={pC:1,pT:1,pM:1,mult:2,bonus:1,sancion:3,plazoH:24,quorum:2/3};
+
+let S=null, modo=null, view='inicio', prefs={};
+let sb=null, sesion=null, casas=[], casaId=null, canal=null, offline=false;
+let ui={con:[],share:null,cat:'Todas',q:'',rech:null,rechErr:false,editT:null,borrar:false,imp:null,panelPer:null,onb:false,msg:null,login:null,cargando:false,errorCarga:null,sucio:false};
+
+/* ---------- utilidades ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>(crypto.randomUUID?crypto.randomUUID():'id-'+Math.random().toString(36).slice(2)+Date.now().toString(36));
+const iso=t=>new Date(t).toISOString();
+function mk(o){const t=iso(Date.now());return Object.assign({id:uid(),creado:t,modificado:t,borrado:false},o)}
+function toca(o){o.modificado=iso(Date.now());return o}
+const now=()=>Date.now()+((S&&S.demo&&S.demo.offset)||0)+((S&&S.skew)||0);
+const vivos=a=>a.filter(x=>!x.borrado);
+const inicioDia=t=>{const d=new Date(t);d.setHours(0,0,0,0);return d.getTime()};
+const finDia=t=>{const d=new Date(t);d.setHours(23,59,59,999);return d.getTime()};
+const fDia=t=>new Date(t).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+const fHora=t=>new Date(t).toLocaleString('es-ES',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+const aInput=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const deInput=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d).getTime()};
+function dur(ms){ms=Math.max(0,ms);const h=Math.floor(ms/H),m=Math.floor((ms%H)/60000);if(h>=48)return Math.floor(h/24)+' días';if(h>0)return (h+' h '+(m?m+' min':'')).trim();return m+' min'}
+const hace=t=>{const ms=now()-t;return ms<60000?'ahora mismo':'hace '+dur(ms)};
+const fmt=n=>{n=Math.round(n*10)/10;return Number.isInteger(n)?String(n):n.toFixed(1).replace('.',',')};
+const signo=n=>(n>0?'+':n<0?'−':'')+fmt(Math.abs(n));
+const ord=n=>n+'.º';
+const parts=r=>r.participantes&&r.participantes.length?r.participantes:[r.autor];
+const nombres=ids=>{const n=ids.map(i=>miembro(i).nombre);return n.length>1?n.slice(0,-1).join(', ')+' y '+n[n.length-1]:(n[0]||'')};
+const ptsTxt=r=>{const n=parts(r).length;return n>1?fmt(r.puntos/n)+' pts c/u':r.puntos+' pts'};
+const norm=s=>String(s??'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+const emailOk=e=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
+const urlApp=()=>location.href.split('#')[0].split('?')[0];
+
+/* ---------- almacenamiento local ---------- */
+function leer(k){try{const r=localStorage.getItem(k);return r?JSON.parse(r):null}catch(e){return null}}
+function escribir(k,v){try{v===null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+const guardarPrefs=()=>escribir(KPREF,prefs);
+function guardar(){if(modo!=='local'||!S)return;S.actualizado=iso(Date.now());if(!escribir(KEY,S))aviso('No se ha podido guardar en este navegador. Descarga una copia desde Ajustes para no perder datos.')}
+function aplicarTema(){const t=prefs.tema;if(t==='oscuro')document.documentElement.dataset.theme='dark';else if(t==='claro')document.documentElement.dataset.theme='light';else delete document.documentElement.dataset.theme}
+
+/* ---------- reglas del juego ---------- */
+const P=()=>S.params;
+function ptsTarea(t){if(t.ajuste!==null&&t.ajuste!==''&&t.ajuste!==undefined&&!isNaN(+t.ajuste))return Math.round(+t.ajuste);const p=P();return Math.round((t.c*p.pC+t.t*p.pT+t.m*p.pM)*p.mult)}
+const necesarias=(n,q)=>n?Math.max(1,Math.ceil(n*q-1e-9)):0;
+function cuenta(r){let ok=0,no=0;const vence=r.fecha+r.plazoH*H;for(const id of r.validadores){const v=r.votos[id];if(v&&v.fecha<=vence)v.tipo==='ok'?ok++:no++}return{ok,no,vence,need:necesarias(r.validadores.length,r.quorum)}}
+function estado(r,t=now()){const c=cuenta(r);if(!c.need)return'aprobada';if(c.ok>=c.need)return'aprobada';if(c.no>=c.need)return'rechazada';if(t>=c.vence)return'silencio';return'pendiente'}
+const aprobada=e=>e==='aprobada'||e==='silencio';
+function chip(e){return{aprobada:'<span class="estado e-ok">Aprobada ✓</span>',silencio:'<span class="estado e-ok">Aprobada por silencio ✓</span>',rechazada:'<span class="estado e-no">Rechazada ✕</span>',pendiente:'<span class="estado e-pend">Pendiente ⏳</span>'}[e]}
+
+function calc(per,t=now()){
+  const p=P(),m={};
+  for(const x of S.miembros)m[x.id]={id:x.id,pts:0,aprob:0,ptsT:0,valid:0,sanc:0,rechazadas:0,compartidas:0,votosNo:0,causas:{},rechEmit:0,pend:0,porValidar:0};
+  for(const r of vivos(S.registros).filter(r=>r.periodoId===per.id)){
+    const e=estado(r,t),c=cuenta(r),ps=parts(r).map(id=>m[id]).filter(Boolean),cuota=r.puntos/parts(r).length;if(!ps.length)continue;
+    for(const a of ps){if(aprobada(e)){a.aprob++;a.ptsT+=cuota;if(ps.length>1)a.compartidas++}else if(e==='rechazada')a.rechazadas++;else a.pend++}
+    for(const v of r.validadores){const x=m[v];if(!x)continue;const vt=r.votos[v];
+      if(vt&&vt.fecha<=c.vence){x.valid++;if(vt.tipo==='no'){x.rechEmit++;for(const a of ps){a.votosNo++;a.causas[vt.motivo]=(a.causas[vt.motivo]||0)+1}}}
+      else if(t>=c.vence)x.sanc++;else x.porValidar++}
+  }
+  for(const k in m){const x=m[k];x.ptsT=Math.round(x.ptsT*10)/10;x.pts=Math.round((x.ptsT+x.valid*p.bonus-x.sanc*p.sancion)*10)/10}
+  const lista=Object.values(m).filter(x=>{const mm=S.miembros.find(y=>y.id===x.id);return !mm.borrado||x.aprob||x.valid||x.sanc}).sort((a,b)=>b.pts-a.pts);
+  lista.forEach((x,i)=>x.pos=i&&x.pts===lista[i-1].pts?lista[i-1].pos:i+1);
+  return lista;
+}
+const miembro=id=>S.miembros.find(x=>x.id===id)||{nombre:'¿?'};
+const yo=()=>miembro(S.yo);
+const esAdmin=()=>!!yo().admin;
+const periodoActual=()=>vivos(S.periodos).filter(p=>!p.cerrado).slice(-1)[0]||null;
+const unido=m=>m.unido!==false;
+const quedaValidador=con=>vivos(S.miembros).some(m=>m.id!==S.yo&&!con.includes(m.id)&&unido(m));
+
+/* ---------- modo local: datos iniciales ---------- */
+function base(casa){return{version:1,actualizado:iso(Date.now()),casa:mk({nombre:casa}),miembros:[],tareas:CATALOGO_OBJ().map(t=>mk({...t,activa:true})),params:{...PARAMS},periodos:[],registros:[],yo:null,demo:null}}
+function seedDemo(){
+  S=base('Casa de ejemplo');S.demo={offset:0};
+  const nombresD=['Ana','Luis','Marta','Pablo'];S.miembros=nombresD.map((n,i)=>mk({nombre:n,admin:i===0}));S.yo=S.miembros[0].id;
+  const t=Date.now();S.periodos=[mk({inicio:inicioDia(t-3*D),fin:finDia(t+3*D),premio:'Elegir la peli y la cena del sábado',cerrado:false})];
+  const per=S.periodos[0],mid=i=>S.miembros[i].id,tarea=n=>S.tareas.find(x=>x.nombre===n);
+  const plan=[[1,'Bajar la basura',70,{0:'ok',2:'ok',3:'ok'}],[2,'Cocinar comida o cena familiar',68,{0:'ok',1:'ok',3:'ok'}],[3,'Poner la mesa',66,{0:'ok',1:'ok'}],
+  [0,'Limpiar un baño completo',55,{1:'ok',2:'ok',3:'Está a medias o mal hecha'}],[2,'Planchar (una tanda)',50,{0:'ok',1:'ok',3:'ok'}],
+  [3,'Cocinar comida o cena familiar',45,{0:'No está hecha',1:'La hizo otra persona',2:'ok'}],[1,'Tender la ropa',40,{0:'ok',2:'ok'}],
+  [0,'Hacer la compra semanal',30,{1:'ok',2:'ok',3:'ok'}],[2,'Bajar el reciclaje (envases, papel, vidrio)',26,{1:'ok',3:'ok'}],
+  [3,'Ordenar el salón',20,{0:'ok',1:'Está a medias o mal hecha',2:'Está a medias o mal hecha'}],[0,'Limpiar el horno',34,{2:'ok',3:'ok'},[1]],[2,'Cambiar las sábanas de una cama',3,{},[3]],
+  [1,'Vaciar el lavavajillas',6,{2:'ok'}],[2,'Limpiar encimera y fogones',2,{}],[0,'Poner una lavadora',1,{3:'ok'}]];
+  for(const [a,n,h,v,con=[]] of plan){const ta=tarea(n),f=t-h*H,votos={},ps=[a,...con];
+    for(const k in v)votos[mid(+k)]=v[k]==='ok'?{tipo:'ok',fecha:f+H}:{tipo:'no',motivo:v[k],fecha:f+H};
+    S.registros.push(mk({tareaId:ta.id,nombre:ta.nombre,cat:ta.cat,puntos:ptsTarea(ta),autor:mid(a),fecha:f,periodoId:per.id,participantes:ps.map(mid),validadores:S.miembros.filter((_,i)=>!ps.includes(i)).map(x=>x.id),votos,plazoH:24,quorum:2/3}))}
+}
+
+/* ---------- capa de datos: local ---------- */
+const reg=id=>S.registros.find(x=>x.id===id);
+const fallo=m=>{throw new Error(m)};
+const L={
+  async anotar(tid,con){const p=periodoActual(),t=now(),ta=S.tareas.find(x=>x.id===tid);
+    if(!p)fallo('No hay ningún periodo en marcha. El administrador puede crearlo en Ajustes.');
+    if(t<p.inicio||t>p.fin)fallo(t>p.fin?'El periodo ya ha terminado. Pide al administrador que empiece uno nuevo.':'El periodo aún no ha empezado.');
+    const c2=con.filter(id=>id!==S.yo&&vivos(S.miembros).some(m=>m.id===id)),ps=[S.yo,...c2],val=vivos(S.miembros).filter(x=>!ps.includes(x.id)).map(x=>x.id);
+    if(!val.length)fallo('Tiene que quedar al menos una persona para validar. Quita a alguien de la tarea compartida.');
+    const r=mk({tareaId:ta.id,nombre:ta.nombre,cat:ta.cat,puntos:ptsTarea(ta),autor:S.yo,participantes:ps,fecha:t,periodoId:p.id,validadores:val,votos:{},plazoH:P().plazoH,quorum:P().quorum});
+    S.registros.push(r);guardar();return r.id},
+  async votar(id,tipo,motivo){const r=reg(id);if(now()>=cuenta(r).vence)fallo('El plazo para responder ya ha terminado.');
+    r.votos[S.yo]=tipo==='ok'?{tipo:'ok',fecha:now()}:{tipo:'no',motivo,fecha:now()};toca(r);guardar()},
+  async retirarVoto(id){const r=reg(id);delete r.votos[S.yo];toca(r);guardar()},
+  async anular(id,flag){const r=reg(id);if(flag&&Object.keys(r.votos).length)fallo('Ya hay votos en esta tarea, así que no se puede anular.');r.borrado=flag;toca(r);guardar()},
+  async compartir(id,con){const r=reg(id);if(Object.keys(r.votos).length)fallo('Ya hay votos en esta tarea. Anúlala y vuelve a anotarla si quieres cambiar quién la hizo.');
+    if(now()>=cuenta(r).vence)fallo('El plazo de esta tarea ya ha terminado.');
+    const ps=[r.autor,...con.filter(i=>i!==r.autor)],val=vivos(S.miembros).filter(x=>!ps.includes(x.id)).map(x=>x.id);
+    if(!val.length)fallo('Tiene que quedar al menos una persona para validar.');r.participantes=ps;r.validadores=val;toca(r);guardar()},
+  async guardarPeriodo(o){if(o.fin<=o.inicio)fallo('Revisa las fechas: el final no puede ser anterior al inicio.');
+    let per=o.id&&S.periodos.find(x=>x.id===o.id);if(!per){per=mk({cerrado:false});S.periodos.push(per)}Object.assign(per,{inicio:o.inicio,fin:o.fin,premio:o.premio});toca(per);guardar();return per.id},
+  async cerrarPeriodo(id,flag){const p=S.periodos.find(x=>x.id===id);p.cerrado=flag;toca(p);guardar()},
+  async guardarMiembro(o){let m;if(!o.id){if(!o.nombre)fallo('Escribe un nombre para añadir al miembro.');m=mk({nombre:o.nombre,admin:!!o.admin});S.miembros.push(m)}
+    else{m=S.miembros.find(x=>x.id===o.id);const antes={...m};if(o.nombre)m.nombre=o.nombre;if(o.admin!=null)m.admin=o.admin;if(o.activo!=null)m.borrado=!o.activo;
+      if(!vivos(S.miembros).some(x=>x.admin)){Object.assign(m,antes);fallo('Tiene que haber al menos un administrador.')}}
+    toca(m);guardar();return m.id},
+  async guardarTarea(id,d){let t;if(!id){if(!d.nombre)fallo('La tarea necesita un nombre.');t=mk({cat:'Otras',c:1,t:1,m:1,ajuste:null,activa:true,...d});S.tareas.unshift(t)}
+    else{t=S.tareas.find(x=>x.id===id);Object.assign(t,d)}toca(t);guardar();return t.id},
+  async importarTareas(lista){let nuevas=0,actualizadas=0;for(const d of lista){const ex=vivos(S.tareas).find(x=>norm(x.nombre)===norm(d.nombre));
+      if(ex){Object.assign(ex,d,{nombre:ex.nombre});toca(ex);actualizadas++}else{S.tareas.push(mk({activa:true,...d}));nuevas++}}guardar();return{nuevas,actualizadas}},
+  async guardarReglas(p){Object.assign(S.params,p);guardar()},
+};
+
+/* ---------- capa de datos: nube (Supabase) ---------- */
+async function rpc(fn,args){const {data,error}=await sb.rpc(fn,args||{});if(error)throw error;return data}
+async function tras(){await recargar();avisarOtros()}
+const N={
+  async anotar(tid,con){const id=await rpc('anotar',{p_casa:casaId,p_tarea:tid,p_con:con});await tras();return id},
+  async votar(id,tipo,motivo){await rpc('votar',{p_registro:id,p_tipo:tipo,p_motivo:motivo||null});await tras()},
+  async retirarVoto(id){await rpc('retirar_voto',{p_registro:id});await tras()},
+  async anular(id,flag){await rpc('anular',{p_registro:id,p_anular:flag});await tras()},
+  async compartir(id,con){await rpc('compartir',{p_registro:id,p_con:con});await tras()},
+  async guardarPeriodo(o){const id=await rpc('guardar_periodo',{p_casa:casaId,p_id:o.id||null,p_inicio:iso(o.inicio),p_fin:iso(o.fin),p_premio:o.premio||''});await tras();return id},
+  async cerrarPeriodo(id,flag){await rpc('cerrar_periodo',{p_casa:casaId,p_id:id,p_cerrado:flag});await tras()},
+  async guardarMiembro(o){const id=await rpc('guardar_miembro',{p_casa:casaId,p_id:o.id||null,p_nombre:o.nombre??null,p_email:o.email??null,p_admin:o.admin??null,p_activo:o.activo??null});await tras();return id},
+  async guardarTarea(id,d){const r=await rpc('guardar_tarea',{p_casa:casaId,p_id:id||null,p_datos:d});await tras();return r},
+  async importarTareas(lista){const r=await rpc('importar_tareas',{p_casa:casaId,p_lista:lista});await tras();return r},
+  async guardarReglas(p){await rpc('guardar_reglas',{p_casa:casaId,p_params:p});await tras()},
+};
+const api=()=>modo==='nube'?N:L;
+
+function aplicar(d){
+  const ms=x=>Date.parse(x);
+  S={nube:true,casa:{id:d.casa.id,nombre:d.casa.nombre},params:{...PARAMS,...d.casa.params},yo:d.yo,skew:ms(d.servidor)-Date.now(),
+    miembros:d.miembros.map(m=>({id:m.id,nombre:m.nombre,admin:m.admin,borrado:!m.activo,email:m.email,unido:m.unido})),
+    tareas:d.tareas.map(t=>({id:t.id,cat:t.cat,nombre:t.nombre,c:t.c,t:t.t,m:t.m,ajuste:t.ajuste==null?null:+t.ajuste,activa:t.activa,borrado:false})),
+    periodos:d.periodos.map(p=>({id:p.id,inicio:ms(p.inicio),fin:ms(p.fin),premio:p.premio,cerrado:p.cerrado,borrado:false})),
+    registros:d.registros.map(r=>({id:r.id,tareaId:r.tareaId,nombre:r.nombre,cat:r.cat,puntos:+r.puntos,autor:r.autor,participantes:r.participantes,validadores:r.validadores,
+      plazoH:+r.plazoH,quorum:+r.quorum,fecha:ms(r.fecha),periodoId:r.periodoId,borrado:false,
+      votos:Object.fromEntries(Object.entries(r.votos||{}).map(([k,v])=>[k,{tipo:v.tipo,motivo:v.motivo,fecha:ms(v.fecha)}]))}))};
+}
+async function recargar(){if(modo!=='nube'||!casaId)return;const d=await rpc('estado_casa',{p_casa:casaId,p_extra:ui.panelPer||null});aplicar(d);offline=false}
+let tSync=null;
+async function sincronizar(){if(modo!=='nube'||!casaId)return;try{await recargar();refrescar()}catch(e){if(esRed(e)&&!offline){offline=true;refrescar()}}}
+function conectarCanal(){if(!sb||!casaId)return;try{if(canal)sb.removeChannel(canal);
+  canal=sb.channel('porfin-'+casaId,{config:{broadcast:{self:false}}}).on('broadcast',{event:'cambio'},()=>{clearTimeout(tSync);tSync=setTimeout(sincronizar,400)}).subscribe()}catch(e){console.warn(e)}}
+function avisarOtros(){try{canal&&canal.send({type:'broadcast',event:'cambio',payload:{}})}catch(e){}}
+
+async function entrarNube(){
+  modo='nube';prefs.modo='nube';guardarPrefs();S=null;ui.cargando=true;ui.errorCarga=null;render();
+  try{casas=await rpc('unirme');
+    if(!casas.length){ui.cargando=false;render();return}
+    casaId=(casas.find(c=>c.id===prefs.casa)||casas[0]).id;prefs.casa=casaId;guardarPrefs();
+    await recargar();conectarCanal();ui.cargando=false;view='inicio';render();
+  }catch(e){console.error(e);ui.cargando=false;ui.errorCarga=msgError(e);render()}
+}
+async function salirNube(){try{if(canal)sb.removeChannel(canal)}catch(e){}canal=null;try{await sb.auth.signOut()}catch(e){}
+  sesion=null;S=null;casaId=null;casas=[];modo=null;prefs.modo=null;guardarPrefs();view='inicio';render()}
+
+/* ---------- avisos y errores ---------- */
+let tToast=null;
+function aviso(msg,deshacer){const el=$('#toast');clearTimeout(tToast);
+  el.innerHTML=`<div class="toast"><span>${esc(msg)}</span>${deshacer?'<button type="button" id="undo">Deshacer</button>':''}</div>`;
+  if(deshacer)$('#undo').onclick=()=>{el.innerHTML='';deshacer()};
+  tToast=setTimeout(()=>el.innerHTML='',deshacer?6000:4500)}
+const esRed=e=>/Failed to fetch|NetworkError|Load failed|network|fetch/i.test((e&&e.message)||'');
+function msgError(e){const m=(e&&(e.message||e.error_description||e.msg))||'';
+  if(esRed(e))return'No hay conexión con el servidor. Revisa internet e inténtalo de nuevo.';
+  if(/JWT|not authenticated|Tienes que entrar/i.test(m))return'Tu sesión ha caducado. Vuelve a entrar con tu email.';
+  if(/rate limit|too many|security purposes/i.test(m))return'Has pedido varios códigos seguidos. Espera un minuto y vuelve a intentarlo.';
+  if(/expired|invalid.*(otp|token)|Token has expired/i.test(m))return'El código no es correcto o ha caducado. Revísalo o pide otro.';
+  return m||'Algo ha fallado. Inténtalo de nuevo.'}
+let ocupado=false;
+async function hacer(fn,ok,undo){if(ocupado)return;ocupado=true;document.body.classList.add('ocupado');
+  try{const res=await fn();render();if(ok)aviso(typeof ok==='function'?ok(res):ok,undo?(()=>hacer(()=>undo(res),'Hecho: se ha deshecho el cambio')):null);return res}
+  catch(e){console.error(e);aviso(msgError(e));if(modo==='nube')sincronizar()}
+  finally{ocupado=false;document.body.classList.remove('ocupado')}}
+
+/* ---------- vistas ---------- */
+function render(){
+  const app=$('#app'),dock=$('#dock');aplicarTema();
+  const abiertos=[...document.querySelectorAll('details[data-k][open]')].map(d=>d.dataset.k);
+  ui.sucio=false;
+  if(modo==='nube'&&!S){dock.hidden=true;app.innerHTML=ui.cargando?vCargando():ui.errorCarga?vErrorCarga():vSinCasa();restaurar(abiertos);return}
+  if(!modo||!S){dock.hidden=true;app.innerHTML=ui.login?vLogin():ui.onb?vOnb():vPortada();return}
+  app.innerHTML=({inicio:vInicio,anotar:vAnotar,panel:vPanel,ajustes:vAjustes})[view]();
+  restaurar(abiertos);
+  dock.hidden=false;
+  dock.innerHTML=`<div class="dock-in">${view==='inicio'?'<button type="button" class="b-prin" data-act="ir" data-v="anotar">＋ Anotar tarea</button>':view==='anotar'?'<button type="button" class="b-sec" data-act="ir" data-v="inicio">Volver sin anotar</button>':''}
+  <nav aria-label="Secciones">${[['inicio','🏠','Inicio'],['panel','🏆','Panel'],['ajustes','⚙️','Ajustes']].map(([v,i,l])=>`<button type="button" data-act="ir" data-v="${v}" ${view===v||(view==='anotar'&&v==='inicio')?'aria-current="page"':''}><span class="ico" aria-hidden="true">${i}</span>${l}</button>`).join('')}</nav></div>`;
+  if(view==='anotar')pintarTareas();
+}
+function restaurar(k){for(const x of k){const d=document.querySelector(`details[data-k="${x}"]`);if(d)d.open=true}}
+function refrescar(){const a=document.activeElement;if(ui.rech||ui.editT||ui.share||ui.imp||(a&&a.matches&&a.matches('input,select,textarea'))){ui.sucio=true;return}render()}
+
+function cabecera(){const per=periodoActual();
+  return `<div class="cab"><div><h1>${esc(S.casa.nombre)}</h1><p class="suave">${per?`Periodo: ${fDia(per.inicio)} – ${fDia(per.fin)}`:'Sin periodo en marcha'} · Estás como <b>${esc(yo().nombre)}</b>${esAdmin()?' (admin)':''}</p></div></div>
+  ${offline?'<div class="aviso-banda" role="status"><strong>Sin conexión.</strong> Lo que ves puede no estar al día. Se actualizará solo al recuperar internet.</div>':''}
+  ${S.demo?`<p class="suave" style="color:var(--aviso)">Modo demo${S.demo.offset?` · reloj adelantado ${dur(S.demo.offset)}`:''}. Cambia de persona en Ajustes.</p>`:''}`}
+
+function vInicio(){
+  const per=periodoActual(),t=now();
+  if(!per)return cabecera()+`<div class="vacio tarjeta"><span class="ico" aria-hidden="true">📅</span><p>No hay ningún periodo en marcha.</p>${esAdmin()?'<button type="button" class="b-sec" data-act="ir" data-v="ajustes">Crear periodo y premio</button>':'<p>Pide al administrador que cree uno.</p>'}</div>`;
+  const tabla=calc(per),mio=tabla.find(x=>x.id===S.yo)||{pts:0,pos:'-'},lider=tabla[0];
+  const regs=vivos(S.registros).filter(r=>r.periodoId===per.id);
+  const porValidar=regs.filter(r=>r.validadores.includes(S.yo)&&!r.votos[S.yo]&&t<cuenta(r).vence).sort((a,b)=>a.fecha-b.fecha);
+  const mias=regs.filter(r=>parts(r).includes(S.yo)&&estado(r)==='pendiente');
+  const ultimos=regs.slice().sort((a,b)=>b.fecha-a.fecha).slice(0,6);
+  const terminado=t>per.fin, provisional=regs.some(r=>estado(r)==='pendiente');
+  const ganadores=tabla.filter(x=>x.pos===1);
+  const solo=S.nube&&!vivos(S.miembros).some(m=>m.id!==S.yo&&unido(m));
+  return cabecera()+`
+  ${solo?`<div class="aviso-banda"><strong>Aún no ha entrado nadie más.</strong> Para anotar tareas hace falta alguien que las valide. ${esAdmin()?'Añade a tu familia en <button type="button" class="b-texto" data-act="irMiembros">Ajustes → Miembros</button> y envíales el enlace de la app.':'Pide a tu familia que entre en la app.'}</div>`:''}
+  ${terminado?`<div class="aviso-banda" role="status"><strong>${provisional?'Resultado provisional':'Periodo terminado'}:</strong> ${ganadores.length>1?'empate entre '+ganadores.map(g=>esc(miembro(g.id).nombre)).join(' y '):'gana '+esc(miembro(lider.id).nombre)} con ${fmt(lider.pts)} puntos.${provisional?' Aún hay tareas esperando validación.':''} ${esAdmin()?'<button type="button" class="b-texto" data-act="ir" data-v="ajustes">Empezar nuevo periodo</button>':''}</div>`:''}
+  <div class="tarjeta">
+    <div class="marcador"><span class="cifra">${fmt(mio.pts)}</span><div><b>tus puntos</b><p class="suave">${ord(mio.pos)} de ${tabla.length}${lider&&lider.id!==S.yo?` · el líder (${esc(miembro(lider.id).nombre)}) tiene ${fmt(lider.pts)}`:mio.pos===1?' · vas en cabeza':''}</p></div></div>
+    <div class="premio"><span aria-hidden="true">🏆</span><p><span class="suave">Premio del periodo</span><br><b>${esc(per.premio||'Sin premio definido')}</b> <span class="suave">· ${terminado?'terminado':'quedan '+dur(per.fin-t)}</span></p></div>
+  </div>
+  <section aria-labelledby="h-val"><div class="entre"><h2 id="h-val">Te toca validar</h2><span class="suave num">${porValidar.length}</span></div>
+  ${porValidar.length?`<ul class="lista">${porValidar.map(itemValidar).join('')}</ul>`:'<div class="vacio tarjeta"><span class="ico" aria-hidden="true">✅</span><p>Estás al día. No tienes nada pendiente de validar.</p></div>'}
+  <p class="suave">Si no respondes en ${fmt(P().plazoH)} h pierdes ${fmt(P().sancion)} puntos. Responder suma ${fmt(P().bonus)}.</p></section>
+  <section aria-labelledby="h-mias"><h2 id="h-mias">Tus tareas esperando</h2>
+  ${mias.length?`<ul class="lista">${mias.map(r=>{const c=cuenta(r),otros=parts(r).filter(i=>i!==S.yo),libre=r.autor===S.yo&&!Object.keys(r.votos).length;return`<li class="item"><div class="entre"><span><span class="t">${esc(r.nombre)}</span>${otros.length?` <span class="suave">· con ${esc(nombres(otros))}</span>`:''}</span><span class="pts">${ptsTxt(r)}</span></div>
+   <div class="barra" aria-hidden="true"><i style="width:${Math.min(100,c.ok/c.need*100)}%"></i></div>
+   <p class="suave">${c.ok} de ${c.need} validaciones · quedan ${dur(c.vence-t)}</p>${libre?`<div class="fila"><button type="button" class="b-texto" data-act="share" data-id="${r.id}">${otros.length?'Cambiar con quién':'Compartir'}</button><button type="button" class="b-texto" data-act="anular" data-id="${r.id}">Anular</button></div>`:''}
+   ${libre&&ui.share===r.id?`<p class="suave">¿Con quién la hiciste? Los puntos se reparten a partes iguales.</p><div class="chips" role="group" aria-label="Compañeros">${vivos(S.miembros).filter(m=>m.id!==S.yo).map(m=>`<button type="button" class="chip" data-act="shareTog" data-r="${r.id}" data-id="${m.id}" aria-pressed="${parts(r).includes(m.id)}">${esc(m.nombre)}</button>`).join('')}</div><button type="button" class="b-sec" data-act="shareFin">Listo</button>`:''}</li>`}).join('')}</ul>`:'<p class="suave">No tienes tareas pendientes de validar. Anota la próxima con el botón de abajo.</p>'}</section>
+  <section aria-labelledby="h-ult"><h2 id="h-ult">Últimos movimientos</h2>
+  ${ultimos.length?`<ul class="lista">${ultimos.map(r=>`<li class="item"><div class="entre"><span><span class="t">${esc(nombres(parts(r)))}</span> · ${esc(r.nombre)}</span><span class="pts">${r.puntos}</span></div><div class="entre"><span class="suave">${hace(r.fecha)}${parts(r).length>1?' · compartida':''}</span>${chip(estado(r))}</div></li>`).join('')}</ul>`:'<div class="vacio tarjeta"><span class="ico" aria-hidden="true">🧹</span><p>Aún no hay tareas anotadas en este periodo.</p></div>'}</section>`;
+}
+function itemValidar(r){const c=cuenta(r),t=now(),e=estado(r),abierto=ui.rech===r.id;
+  return `<li class="item"><div class="entre"><span><span class="t">${esc(nombres(parts(r)))}</span> · ${esc(r.nombre)}</span><span class="pts">${ptsTxt(r)}</span></div>
+  <p class="suave">${hace(r.fecha)} · te quedan <b>${dur(c.vence-t)}</b> · ${c.ok} de ${c.need} validaciones${e!=='pendiente'?' · '+chip(e)+' (responde igualmente)':''}</p>
+  ${abierto?`<fieldset class="motivos"><legend>¿Por qué la rechazas?</legend>${MOTIVOS.map((m,i)=>`<label class="check"><input type="radio" name="mot-${r.id}" value="${esc(m)}" id="mot-${r.id}-${i}"> ${esc(m)}</label>`).join('')}</fieldset>
+   ${ui.rechErr?'<p class="error-txt">Elige un motivo para poder rechazarla.</p>':''}
+   <div class="fila"><button type="button" class="b-no" data-act="confRech" data-id="${r.id}">Rechazar ✕</button><button type="button" class="b-sec" data-act="cancRech" style="flex:1">Cancelar</button></div>`
+  :`<div class="fila"><button type="button" class="b-ok" data-act="validar" data-id="${r.id}">Validar ✓</button><button type="button" class="b-no" data-act="rech" data-id="${r.id}">Rechazar ✕</button></div>`}</li>`}
+
+function vAnotar(){const cats=['Todas',...new Set(vivos(S.tareas).filter(t=>t.activa).map(t=>t.cat))];
+  const otros=vivos(S.miembros).filter(m=>m.id!==S.yo),puede=otros.length>=2;
+  return `<div><h1>¿Qué has hecho?</h1><p class="suave">Toca la tarea para anotarla. El resto tendrá ${fmt(P().plazoH)} h para validarla.</p></div>
+  <details data-k="con" ${ui.con.length?'open':''}><summary>¿La has hecho con alguien?${ui.con.length?' · con '+esc(nombres(ui.con)):''}</summary><div class="cuerpo">
+   <p class="suave">Marca quién te ha ayudado. Los puntos se reparten a partes iguales y la validan los demás.</p>
+   ${!puede?'<p class="suave">Para compartir tareas hacen falta al menos 3 miembros.</p>':`<div class="chips" role="group" aria-label="Compañeros">${otros.map(m=>{const on=ui.con.includes(m.id);return`<button type="button" class="chip" data-act="con" data-id="${m.id}" aria-pressed="${on}" ${!on&&!quedaValidador([...ui.con,m.id])?'disabled':''}>${esc(m.nombre)}</button>`}).join('')}</div>
+   <p class="suave">Tiene que quedar al menos una persona para validar.</p>`}</div></details>
+  <label for="q">Buscar tarea<input id="q" type="search" placeholder="Ej.: lavavajillas" value="${esc(ui.q)}" autocomplete="off"></label>
+  <div class="chips" role="group" aria-label="Categorías">${cats.map(c=>`<button type="button" class="chip" data-act="cat" data-c="${esc(c)}" aria-pressed="${ui.cat===c}">${esc(c)}</button>`).join('')}</div>
+  <ul class="lista" id="lista-tareas"></ul>`}
+function pintarTareas(){const el=$('#lista-tareas');if(!el)return;const q=norm(ui.q);
+  const ts=vivos(S.tareas).filter(t=>t.activa&&(ui.cat==='Todas'||t.cat===ui.cat)&&(!q||norm(t.nombre).includes(q)));
+  el.innerHTML=ts.length?ts.map(t=>`<li><button type="button" class="tarea-btn" data-act="anotar" data-id="${t.id}"><span>${esc(t.nombre)}<small>${esc(t.cat)}</small></span><span class="pts">${ui.con.length?fmt(ptsTarea(t)/(ui.con.length+1))+' pts c/u':ptsTarea(t)+' pts'}</span></button></li>`).join('')
+  :`<li class="vacio"><p>No hay ninguna tarea con ese nombre.</p>${esAdmin()?'<button type="button" class="b-sec" data-act="nuevaTarea">Añadirla al catálogo</button>':'<p>Pide al administrador que la añada al catálogo.</p>'}</li>`}
+
+function vPanel(){
+  const pers=vivos(S.periodos).slice().sort((a,b)=>b.inicio-a.inicio);if(!pers.length)return'<h1>Panel</h1><div class="vacio tarjeta"><p>Todavía no hay periodos.</p></div>';
+  const per=pers.find(p=>p.id===ui.panelPer)||periodoActual()||pers[0],tabla=calc(per),max=Math.max(1,...tabla.map(x=>Math.abs(x.pts)));
+  const regs=vivos(S.registros).filter(r=>r.periodoId===per.id).sort((a,b)=>b.fecha-a.fecha);
+  const causas={};regs.forEach(r=>{for(const v in r.votos){const x=r.votos[v];if(x.tipo==='no'&&x.fecha<=cuenta(r).vence)causas[x.motivo]=(causas[x.motivo]||0)+1}});
+  const totC=Object.values(causas).reduce((a,b)=>a+b,0);
+  return `<div><h1>Panel</h1><p class="suave">Puntos = tareas aprobadas (repartidas a partes iguales si son compartidas) + ${fmt(P().bonus)} por cada respuesta − ${fmt(P().sancion)} por cada tarea sin responder.</p></div>
+  <label for="selPer">Periodo<select id="selPer" data-change="per">${pers.map(p=>`<option value="${p.id}" ${p.id===per.id?'selected':''}>${fDia(p.inicio)} – ${fDia(p.fin)}${p.cerrado?' (cerrado)':''}</option>`).join('')}</select></label>
+  <div class="premio"><span aria-hidden="true">🏆</span><p><span class="suave">Premio</span><br><b>${esc(per.premio||'Sin premio')}</b></p></div>
+  <section aria-labelledby="h-clas"><h2 id="h-clas">Clasificación</h2><ul class="lista">${tabla.map(x=>`<li class="item">
+    <div class="entre"><div class="fila"><span class="ranking-pos" aria-label="Posición ${x.pos}">${x.pos}</span><span class="t">${esc(miembro(x.id).nombre)}${x.id===S.yo?' (tú)':''}</span></div><span class="cifra" style="font-size:28px">${fmt(x.pts)}</span></div>
+    <div class="barra" aria-hidden="true"><i style="width:${Math.max(0,x.pts)/max*100}%"></i></div>
+    <details data-k="det-${x.id}"><summary>Ver detalle</summary><div class="cuerpo"><dl class="desglose">
+      <dt>Tareas aprobadas</dt><dd>${x.aprob} · <span class="pos">${signo(x.ptsT)}</span></dd>
+      <dt>· de ellas, compartidas</dt><dd>${x.compartidas}</dd>
+      <dt>Respuestas a tiempo</dt><dd>${x.valid} · <span class="pos">${signo(x.valid*P().bonus)}</span></dd>
+      <dt>Sin responder</dt><dd>${x.sanc} · <span class="neg">${signo(-x.sanc*P().sancion)}</span></dd>
+      <dt>Tareas rechazadas</dt><dd>${x.rechazadas}</dd>
+      <dt>Votos de rechazo recibidos</dt><dd>${x.votosNo}</dd>
+      ${Object.entries(x.causas).map(([k,v])=>`<dt>· ${esc(k)}</dt><dd>${v}</dd>`).join('')}
+      <dt>Rechazos que ha emitido</dt><dd>${x.rechEmit}</dd>
+      <dt>Tareas suyas esperando</dt><dd>${x.pend}</dd>
+      <dt>Le quedan por validar</dt><dd>${x.porValidar}</dd>
+    </dl></div></details></li>`).join('')}</ul></section>
+  <section aria-labelledby="h-causas"><h2 id="h-causas">Causas de rechazo</h2>
+  ${totC?`<ul class="lista">${Object.entries(causas).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<li class="item"><div class="entre"><span>${esc(k)}</span><span class="pts">${v}</span></div><div class="barra" aria-hidden="true"><i style="width:${v/totC*100}%;background:var(--error)"></i></div></li>`).join('')}</ul>`:'<p class="suave">Ningún rechazo en este periodo.</p>'}</section>
+  <details data-k="todas"><summary>Todas las tareas del periodo (${regs.length})</summary><div class="cuerpo"><ul class="lista">${regs.map(r=>{const c=cuenta(r);return`<li class="item" style="background:var(--fondo)"><div class="entre"><span><span class="t">${esc(nombres(parts(r)))}</span> · ${esc(r.nombre)}</span><span class="pts">${ptsTxt(r)}</span></div>
+  <div class="entre"><span class="suave">${fHora(r.fecha)} · ✓${c.ok} ✕${c.no}</span>${chip(estado(r))}</div>
+  ${r.validadores.filter(v=>!r.votos[v]&&now()>=c.vence).length?`<p class="suave neg">Sin responder: ${r.validadores.filter(v=>!r.votos[v]).map(v=>esc(miembro(v).nombre)).join(', ')}</p>`:''}
+  ${Object.entries(r.votos).filter(([,v])=>v.tipo==='no').map(([k,v])=>`<p class="suave">✕ ${esc(miembro(k).nombre)}: ${esc(v.motivo)}</p>`).join('')}</li>`}).join('')||'<li class="suave">Sin tareas.</li>'}</ul></div></details>`;
+}
+
+function vAjustes(){
+  const per=periodoActual(),adm=esAdmin(),dis=adm?'':'disabled',p=P(),nube=!!S.nube;
+  const ej=S.tareas.find(t=>t.nombre==='Limpiar un baño completo')||S.tareas[0]||{nombre:'—',c:1,t:1,m:1};
+  const nVal=vivos(S.miembros).length-1;
+  return `<div><h1>Ajustes</h1>${adm?'':'<p class="suave">Solo el administrador puede cambiar el periodo, los miembros, las tareas y las reglas.</p>'}</div>
+  ${nube?`<div class="tarjeta"><b>Tu cuenta</b><p class="suave">${esc(sesion&&sesion.user&&sesion.user.email||'')} · ${esc(yo().nombre)}${adm?' (admin)':''}</p>
+    ${casas.length>1?`<label for="selCasa">Casa<select id="selCasa" data-change="casa">${casas.map(c=>`<option value="${c.id}" ${c.id===casaId?'selected':''}>${esc(c.nombre)}</option>`).join('')}</select></label>`:''}
+    <div class="fila"><button type="button" class="b-sec" data-act="sync">Actualizar ahora</button><button type="button" class="b-texto" data-act="salir">Cerrar sesión</button></div></div>`
+  :`<div class="demo"><b>${S.demo?'Modo demo':'Casa guardada en este dispositivo'}</b><p class="suave">Los datos están solo en este navegador.</p>
+    <label for="selYo">Quién está usando la app<select id="selYo" data-change="yo">${vivos(S.miembros).map(m=>`<option value="${m.id}" ${m.id===S.yo?'selected':''}>${esc(m.nombre)}${m.admin?' (admin)':''}</option>`).join('')}</select></label>
+    ${S.demo?`<p class="suave">Hora simulada: ${fHora(now())}</p><div class="fila"><button type="button" class="b-sec" data-act="reloj">Adelantar 6 horas</button>${S.demo.offset?'<button type="button" class="b-texto" data-act="relojReal">Volver a la hora real</button>':''}</div>`:''}
+    <button type="button" class="b-texto" data-act="salirLocal">${S.demo?'Salir de la demo':'Volver a la pantalla de inicio'}</button></div>`}
+
+  <details data-k="per" ${adm&&!per?'open':''}><summary>Periodo y premio</summary><div class="cuerpo">
+    ${per?`<p class="suave">En marcha: ${fDia(per.inicio)} – ${fDia(per.fin)}</p>`:'<p>No hay ningún periodo en marcha.</p>'}
+    <div class="fila"><button type="button" class="b-sec" data-act="preset" data-p="semana" ${dis}>Esta semana</button><button type="button" class="b-sec" data-act="preset" data-p="mes" ${dis}>Este mes</button></div>
+    <div class="rejilla"><label for="pIni">Empieza<input type="date" id="pIni" value="${aInput(per?per.inicio:now())}" ${dis}></label><label for="pFin">Termina<input type="date" id="pFin" value="${aInput(per?per.fin:now()+6*D)}" ${dis}></label></div>
+    <label for="pPremio">Premio<input id="pPremio" value="${esc(per?per.premio:'')}" placeholder="Ej.: elegir la peli del sábado" maxlength="120" ${dis}></label>
+    <button type="button" class="b-sec" data-act="guardarPer" ${dis}>${per?'Guardar cambios del periodo':'Crear periodo'}</button>
+    ${per?`<button type="button" class="b-texto" data-act="nuevoPer" ${dis}>Cerrar este periodo y empezar uno nuevo</button>`:''}
+  </div></details>
+
+  <details data-k="miembros"><summary>Miembros (${vivos(S.miembros).length})</summary><div class="cuerpo">
+    ${nube&&adm?`<div class="tarjeta" style="background:var(--fondo)"><b>Enlace de la app para tu familia</b><p class="suave">Envíalo por WhatsApp. Cada uno entra con el email que hayas puesto aquí.</p><code class="enlace">${esc(urlApp())}</code><button type="button" class="b-sec" data-act="copiarEnlace">Copiar enlace</button></div>`:''}
+    <ul class="lista">${vivos(S.miembros).map(m=>`<li class="item" style="background:var(--fondo)">
+     ${nube&&!unido(m)?'<span class="estado e-pend" style="align-self:flex-start">Aún no ha entrado</span>':''}
+     <label for="mn-${m.id}">Nombre<input id="mn-${m.id}" value="${esc(m.nombre)}" maxlength="40" ${dis}></label>
+     ${nube&&adm?(unido(m)?`<p class="suave">${esc(m.email||'')}</p>`:`<label for="me-${m.id}">Email<input id="me-${m.id}" type="email" value="${esc(m.email||'')}" autocapitalize="off" ${dis}></label>`):''}
+     <label class="check"><input type="checkbox" id="ma-${m.id}" ${m.admin?'checked':''} ${dis}> Administrador</label>
+     <div class="fila"><button type="button" class="b-sec" data-act="guardarM" data-id="${m.id}" ${dis}>Guardar</button>${vivos(S.miembros).length>2&&m.id!==S.yo?`<button type="button" class="b-texto" data-act="quitarM" data-id="${m.id}" ${dis}>Quitar</button>`:''}</div></li>`).join('')}</ul>
+    <fieldset class="motivos"><legend>Añadir miembro</legend><div class="rejilla"><label for="nuevoM">Nombre o alias<input id="nuevoM" maxlength="40" ${dis}></label>${nube?`<label for="nuevoE">Email<input id="nuevoE" type="email" autocapitalize="off" ${dis}></label>`:''}</div>
+    <button type="button" class="b-sec" data-act="addM" ${dis}>Añadir</button></fieldset>
+    <p class="suave">Quien no ha entrado todavía no valida tareas ni recibe sanciones.</p>
+  </div></details>
+
+  <details data-k="tareas" ${ui.editT?'open':''}><summary>Catálogo de tareas (${vivos(S.tareas).length})</summary><div class="cuerpo">
+    <p class="suave">Puntos = (Complejidad × ${fmt(p.pC)} + Tiempo × ${fmt(p.pT)} + Molestia × ${fmt(p.pM)}) × ${fmt(p.mult)}. Si pones un ajuste manual, manda el ajuste.</p>
+    <div class="fila"><button type="button" class="b-sec" data-act="nuevaTarea" ${dis}>Añadir tarea</button><button type="button" class="b-sec" data-act="xls" ${dis}>Importar desde Excel</button><input type="file" id="fXls" accept=".xlsx,.xls,.csv" hidden data-change="xls"></div>
+    <ul class="lista">${(ui.nueva?[ui.nueva]:[]).concat(vivos(S.tareas)).map(t=>ui.editT===t.id?editorTarea(t):`<li class="item" style="background:var(--fondo)"><div class="entre"><span><span class="t">${esc(t.nombre)}</span>${t.activa?'':' <span class="estado e-pend">Oculta</span>'}<br><span class="suave">${esc(t.cat)} · C${t.c} T${t.t} M${t.m}${t.ajuste!==null&&t.ajuste!==''?' · ajuste manual':''}</span></span><span class="pts">${ptsTarea(t)} pts</span></div>${adm?`<button type="button" class="b-texto" data-act="editT" data-id="${t.id}" style="align-self:flex-start">Editar</button>`:''}</li>`).join('')}</ul>
+  </div></details>
+
+  <details data-k="reglas"><summary>Reglas y puntuación</summary><div class="cuerpo">
+    <div class="rejilla">
+      ${[['pC','Peso complejidad',p.pC,.5],['pT','Peso tiempo',p.pT,.5],['pM','Peso molestia',p.pM,.5],['mult','Multiplicador',p.mult,.5],['bonus','Puntos por responder',p.bonus,1],['sancion','Puntos que pierde quien no responde',p.sancion,1],['plazoH','Plazo para responder (horas)',p.plazoH,1]].map(([k,l,v,s])=>`<label for="r-${k}">${l}<input type="number" id="r-${k}" value="${v}" step="${s}" min="0" ${dis}></label>`).join('')}
+      <label for="r-quorum">Validaciones necesarias<select id="r-quorum" ${dis}>${[[1/2,'La mitad del resto'],[2/3,'2/3 del resto'],[3/4,'3/4 del resto'],[1,'Todo el resto']].map(([v,l])=>`<option value="${v}" ${Math.abs(v-p.quorum)<1e-6?'selected':''}>${l}</option>`).join('')}</select></label>
+    </div>
+    <p class="suave">Ejemplo: «${esc(ej.nombre)}» = (${ej.c}×${fmt(p.pC)} + ${ej.t}×${fmt(p.pT)} + ${ej.m}×${fmt(p.pM)}) × ${fmt(p.mult)} = <b>${ptsTarea(ej)} pts</b>. Con ${vivos(S.miembros).length} miembros hacen falta ${necesarias(nVal,p.quorum)} de ${nVal} validaciones. Si a las ${fmt(p.plazoH)} h no hay rechazos suficientes, la tarea se aprueba sola.</p>
+    <button type="button" class="b-sec" data-act="guardarReglas" ${dis}>Guardar reglas</button>
+    <p class="suave">Las tareas ya anotadas conservan sus puntos y su plazo.</p>
+  </div></details>
+
+  <details data-k="copia"><summary>Copia de seguridad</summary><div class="cuerpo">
+    <button type="button" class="b-sec" data-act="exportar">Descargar copia (JSON)</button>
+    <button type="button" class="b-texto" data-act="copiar">Copiar la copia al portapapeles</button>
+    ${nube?'<p class="suave">Los datos de la casa están guardados en el servidor. Esta copia es para tener un respaldo propio.</p>':`<button type="button" class="b-sec" data-act="importar">Cargar copia</button><input type="file" id="fJson" accept=".json,application/json" hidden data-change="json">
+    ${ui.imp?`<div class="aviso-banda"><p><strong>Vas a sustituir todos los datos</strong> por los de la copia: ${ui.imp.miembros.length} miembros, ${ui.imp.tareas.length} tareas y ${ui.imp.registros.length} anotaciones.</p><div class="fila" style="margin-top:8px"><button type="button" class="b-peligro" data-act="confImp">Sustituir datos</button><button type="button" class="b-sec" data-act="cancImp">Cancelar</button></div></div>`:''}`}
+  </div></details>
+
+  <details data-k="tema"><summary>Apariencia</summary><div class="cuerpo"><div class="fila" role="group" aria-label="Tema">${[['auto','Automático'],['claro','Claro'],['oscuro','Oscuro']].map(([v,l])=>`<button type="button" class="chip" data-act="tema" data-t="${v}" aria-pressed="${(prefs.tema||'auto')===v}">${l}</button>`).join('')}</div></div></details>
+
+  ${nube?'':`<details data-k="borrar" ${ui.borrar?'open':''}><summary>Borrar datos</summary><div class="cuerpo">
+    ${ui.borrar?`<p><b>Se borrarán todos los miembros, tareas, periodos y puntos de este dispositivo.</b> No se puede deshacer. Descarga antes una copia si quieres conservarlos.</p><div class="fila"><button type="button" class="b-peligro" data-act="borrarYa">Borrar todos los datos</button><button type="button" class="b-sec" data-act="noBorrar">Cancelar</button></div>`
+    :`<button type="button" class="b-no" data-act="borrar">Borrar todos los datos…</button>`}
+  </div></details>`}
+  <p class="suave">¡Por Fin! v1.0 · licencia MIT${nube?' · datos en servidor de la UE':''}</p>`;
+}
+function editorTarea(t){const cats=[...new Set(vivos(S.tareas).map(x=>x.cat))];
+  const sel=(k,l)=>`<label for="e${k}-${t.id}">${l}<select id="e${k}-${t.id}">${[1,2,3].map(v=>`<option value="${v}" ${t[k]===v?'selected':''}>${v} · ${ESCALAS[k][v]}</option>`).join('')}</select></label>`;
+  return `<li class="item" style="background:var(--fondo);border:2px solid var(--azul)">
+   <label for="en-${t.id}">Nombre<input id="en-${t.id}" value="${esc(t.nombre)}" maxlength="80"></label>
+   <label for="eg-${t.id}">Categoría<input id="eg-${t.id}" value="${esc(t.cat)}" list="cats"></label><datalist id="cats">${cats.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
+   <div class="rejilla">${sel('c','Complejidad')}${sel('t','Tiempo')}${sel('m','Molestia')}<label for="ej-${t.id}">Ajuste manual (opcional)<input type="number" id="ej-${t.id}" value="${t.ajuste??''}" placeholder="Sin ajuste" min="0"></label></div>
+   <label class="check"><input type="checkbox" id="ea-${t.id}" ${t.activa?'checked':''}> Visible al anotar</label>
+   <div class="fila"><button type="button" class="b-sec" data-act="guardarT" data-id="${t.id}">Guardar tarea</button><button type="button" class="b-texto" data-act="cancT">Cancelar</button>${t.id==='nueva'?'':`<button type="button" class="b-texto" data-act="quitarT" data-id="${t.id}">Quitar del catálogo</button>`}</div></li>`}
+
+function vPortada(){const nube=!!sb,guardado=!nube&&leer(KEY);
+  return `<div class="portada"><p class="logo">¡Por Fin!</p><h1>Orden en casa, por puntos</h1>
+  <p>Cada tarea de casa suma puntos. El resto de la familia la valida en 24 horas y, al final del periodo, quien más puntos tenga se lleva el premio.</p>
+  ${nube?'<button type="button" class="b-prin" data-act="login">Entrar con mi email</button><button type="button" class="b-sec" data-act="demo">Ver una demo con una familia de ejemplo</button>'
+  :`<button type="button" class="b-prin" data-act="demo">Probar con una familia de ejemplo</button>
+   ${guardado&&!guardado.demo?`<button type="button" class="b-sec" data-act="seguirLocal">Seguir con «${esc(guardado.casa.nombre)}»</button>`:'<button type="button" class="b-sec" data-act="onb">Configurar mi casa en este dispositivo</button>'}`}
+  <p class="suave">${nube?'La demo se guarda solo en este dispositivo y no afecta a tu casa.':'Tus datos se guardan solo en este dispositivo.'}</p></div>`}
+function vLogin(){const l=ui.login;
+  return `<div class="portada"><p class="logo">¡Por Fin!</p>
+  ${l.paso==='email'?`<h1>Entra con tu email</h1><p>Te enviaremos un código de 6 cifras. Solo tendrás que ponerlo la primera vez en este dispositivo.</p>
+   <form id="fEmail" novalidate><label for="lEmail">Tu email<input id="lEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" value="${esc(l.email||'')}"></label>
+   ${l.error?`<p class="error-txt" role="alert">${esc(l.error)}</p>`:''}<button type="submit" class="b-prin" ${l.enviando?'disabled':''}>${l.enviando?'Enviando…':'Enviarme el código'}</button></form>`
+  :`<h1>Revisa tu correo</h1><p>Hemos enviado un código a <b>${esc(l.email)}</b>. Escríbelo aquí. Si no aparece en un par de minutos, mira en la carpeta de spam.</p>
+   <form id="fCodigo" novalidate><label for="lCodigo">Código<input id="lCodigo" inputmode="numeric" autocomplete="one-time-code" maxlength="10" spellcheck="false" class="codigo"></label>
+   ${l.error?`<p class="error-txt" role="alert">${esc(l.error)}</p>`:''}<button type="submit" class="b-prin" ${l.enviando?'disabled':''}>${l.enviando?'Comprobando…':'Entrar'}</button></form>
+   <button type="button" class="b-texto" data-act="loginEmail">Cambiar de email o pedir otro código</button>`}
+  <button type="button" class="b-texto" data-act="portada">Volver</button></div>`}
+function vCargando(){return `<div class="vacio" style="padding-top:64px"><span class="ico" aria-hidden="true">⏳</span><p>Cargando tu casa…</p></div>`}
+function vErrorCarga(){return `<div class="portada"><h1>No se ha podido cargar</h1><p class="error-txt">${esc(ui.errorCarga)}</p><button type="button" class="b-prin" data-act="reintentar">Reintentar</button><button type="button" class="b-texto" data-act="salir">Cerrar sesión</button></div>`}
+function vSinCasa(){const email=sesion&&sesion.user&&sesion.user.email||'';
+  return `<div class="portada"><h1>Ya has entrado</h1><p>Has entrado como <b>${esc(email)}</b>, pero todavía no perteneces a ninguna casa.</p>
+  <div class="tarjeta"><h2>¿Te ha invitado alguien?</h2><p>Pide a quien administra la casa que añada este email en <b>Ajustes → Miembros</b>. Después pulsa:</p><button type="button" class="b-sec" data-act="reintentar">Volver a comprobar</button></div>
+  <details data-k="crear"><summary>Crear una casa nueva (si eres quien organiza)</summary><div class="cuerpo">
+   <label for="cCasa">Nombre de la casa<input id="cCasa" maxlength="60" placeholder="Ej.: Casa Muñoz"></label>
+   <label for="cYo">Tu nombre o alias<input id="cYo" maxlength="40"></label>
+   <label for="cPremio">Premio de esta semana<input id="cPremio" maxlength="120" placeholder="Ej.: elegir la peli del sábado"></label>
+   ${ui.msg?`<p class="error-txt">${esc(ui.msg)}</p>`:''}
+   <button type="button" class="b-prin" data-act="crearCasa">Crear casa y empezar la semana</button>
+   <p class="suave">Se crea con el catálogo de 31 tareas, que luego puedes cambiar o importar desde Excel.</p></div></details>
+  <button type="button" class="b-texto" data-act="salir">Cerrar sesión</button></div>`}
+function vOnb(){return `<div class="portada"><h1>Configura tu casa</h1><p class="suave">Tres datos y listo. Todo se puede cambiar después en Ajustes.</p>
+  <label for="oCasa">Nombre de la casa<input id="oCasa" placeholder="Ej.: Casa Muñoz" value="Mi casa"></label>
+  <fieldset class="motivos"><legend>¿Quiénes jugáis? (el primero será el administrador)</legend><div class="rejilla">${[0,1,2,3].map(i=>`<label for="oM${i}">Miembro ${i+1}<input id="oM${i}" placeholder="${['Tu nombre','Nombre','Nombre','Nombre'][i]}"></label>`).join('')}</div></fieldset>
+  <label for="oPremio">Premio de esta semana<input id="oPremio" placeholder="Ej.: elegir la peli del sábado"></label>
+  ${ui.msg?`<p class="error-txt">${esc(ui.msg)}</p>`:''}
+  <button type="button" class="b-prin" data-act="crearLocal">Empezar la semana</button>
+  <button type="button" class="b-texto" data-act="portada">Volver</button></div>`}
+
+/* ---------- utilidades de eventos ---------- */
+function rango(tipo){const t=now(),d=new Date(t);if(tipo==='semana'){const dw=(d.getDay()+6)%7;const ini=inicioDia(t-dw*D);return[ini,finDia(ini+6*D)]}return[inicioDia(new Date(d.getFullYear(),d.getMonth(),1)),finDia(new Date(d.getFullYear(),d.getMonth()+1,0))]}
+function descargar(nombre,texto){const b=new Blob([texto],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nombre;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+function cargarXLSX(){return new Promise((ok,ko)=>{if(window.XLSX)return ok();const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=ok;s.onerror=()=>ko(new Error('No se ha podido cargar el lector de Excel. Revisa la conexión e inténtalo de nuevo.'));document.head.appendChild(s)})}
+async function leerExcel(buf){await cargarXLSX();
+  const wb=XLSX.read(buf,{type:'array'}),ws=wb.Sheets['Tareas']||wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+  const hi=rows.findIndex(r=>r.some(c=>norm(c)==='tarea'));if(hi<0)throw new Error('No he podido leer el Excel: no encuentro una columna llamada «Tarea».');
+  const h=rows[hi].map(norm),col=k=>h.findIndex(x=>x.startsWith(k)),cT=col('tarea'),cC=col('categor'),cX=col('complejidad'),cTi=col('tiempo'),cM=col('molestia'),cA=col('ajuste'),cV=col('activa');
+  if([cX,cTi,cM].includes(-1))throw new Error('No he podido leer el Excel: faltan las columnas de Complejidad, Tiempo o Molestia.');
+  const cl=v=>Math.min(3,Math.max(1,Math.round(+v)||1)),lista=[];
+  for(const r of rows.slice(hi+1)){const n=String(r[cT]||'').trim();if(!n)continue;
+    lista.push({nombre:n,cat:cC>=0&&r[cC]?String(r[cC]).trim():'Otras',c:cl(r[cX]),t:cl(r[cTi]),m:cl(r[cM]),ajuste:cA>=0&&r[cA]!==''&&!isNaN(+r[cA])?+r[cA]:null,activa:cV>=0?norm(r[cV])!=='no':true})}
+  return lista}
+function leerTareaForm(id){const g=k=>document.getElementById(k+'-'+id),aj=g('ej').value.trim();
+  return{nombre:g('en').value.trim(),cat:g('eg').value.trim()||'Otras',c:+g('ec').value,t:+g('et').value,m:+g('em').value,ajuste:aj===''?null:+aj,activa:g('ea').checked}}
+
+/* ---------- eventos ---------- */
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.disabled)return;const d=b.dataset,a=d.act;
+  switch(a){
+  case'ir':view=d.v;ui.rech=null;ui.borrar=false;ui.con=[];ui.share=null;ui.editT=null;ui.nueva=null;render();window.scrollTo(0,0);break;
+  case'irMiembros':view='ajustes';render();{const x=document.querySelector('details[data-k="miembros"]');if(x){x.open=true;x.scrollIntoView()}}break;
+  /* portada y acceso */
+  case'demo':seedDemo();modo='local';prefs.modo='local';guardarPrefs();guardar();ui.onb=false;view='inicio';render();aviso('Familia de ejemplo cargada. Estás como Ana, la administradora.');break;
+  case'onb':ui.onb=true;ui.msg=null;render();break;
+  case'portada':ui.onb=false;ui.login=null;render();break;
+  case'seguirLocal':S=leer(KEY);modo='local';prefs.modo='local';guardarPrefs();view='inicio';render();break;
+  case'salirLocal':modo=null;S=null;prefs.modo=null;guardarPrefs();render();break;
+  case'login':ui.login={paso:'email',email:prefs.email||''};render();setTimeout(()=>{const i=$('#lEmail');i&&i.focus()},50);break;
+  case'loginEmail':ui.login={paso:'email',email:ui.login.email};render();break;
+  case'reintentar':entrarNube();break;
+  case'salir':salirNube();break;
+  case'crearLocal':{const ns=[0,1,2,3].map(i=>$('#oM'+i).value.trim()).filter(Boolean);if(ns.length<2){ui.msg='Escribe al menos dos nombres para poder jugar.';render();return}
+    S=base($('#oCasa').value.trim()||'Mi casa');S.miembros=ns.map((n,i)=>mk({nombre:n,admin:i===0}));S.yo=S.miembros[0].id;
+    const[ini,fin]=rango('semana');S.periodos=[mk({inicio:ini,fin,premio:$('#oPremio').value.trim(),cerrado:false})];modo='local';prefs.modo='local';guardarPrefs();ui.onb=false;ui.msg=null;view='inicio';guardar();render();aviso('¡Casa lista! Anota la primera tarea.');break}
+  case'crearCasa':{const nombre=$('#cCasa').value.trim(),mi=$('#cYo').value.trim(),premio=$('#cPremio').value.trim();
+    if(!nombre||!mi){ui.msg='Escribe el nombre de la casa y tu nombre.';render();return}ui.msg=null;
+    const t=Date.now(),dw=(new Date(t).getDay()+6)%7,ini=inicioDia(t-dw*D),fin=finDia(ini+6*D);
+    hacer(async()=>{await rpc('crear_casa',{p_nombre:nombre,p_mi_nombre:mi,p_premio:premio,p_inicio:iso(ini),p_fin:iso(fin),p_tareas:CATALOGO_OBJ()});await entrarNube()},'¡Casa creada! Ahora añade a tu familia en Ajustes → Miembros.');break}
+  /* juego */
+  case'anotar':{const ta=S.tareas.find(x=>x.id===d.id),con=ui.con.slice();
+    hacer(async()=>{const id=await api().anotar(d.id,con);ui.con=[];ui.q='';view='inicio';window.scrollTo(0,0);return id},
+      ()=>con.length?`Anotada con ${nombres(con)}: ${ta.nombre} · ${fmt(ptsTarea(ta)/(con.length+1))} pts cada uno si se valida`:`Anotada: ${ta.nombre} · ${ptsTarea(ta)} pts si se valida`,
+      id=>api().anular(id,true));break}
+  case'cat':ui.cat=d.c;document.querySelectorAll('.chip[data-act=cat]').forEach(c=>c.setAttribute('aria-pressed',c.dataset.c===ui.cat));pintarTareas();break;
+  case'con':{const i=ui.con.indexOf(d.id);if(i>=0)ui.con.splice(i,1);else ui.con.push(d.id);render();break}
+  case'validar':hacer(()=>api().votar(d.id,'ok'),`Validada · +${fmt(P().bonus)} pt por responder`,()=>api().retirarVoto(d.id));break;
+  case'rech':ui.rech=d.id;ui.rechErr=false;render();break;
+  case'cancRech':ui.rech=null;render();break;
+  case'confRech':{const m=document.querySelector(`input[name="mot-${d.id}"]:checked`);if(!m){ui.rechErr=true;render();return}ui.rechErr=false;ui.rech=null;
+    hacer(()=>api().votar(d.id,'no',m.value),`Rechazada (${m.value}) · +${fmt(P().bonus)} pt por responder`,()=>api().retirarVoto(d.id));break}
+  case'anular':hacer(()=>api().anular(d.id,true),'Tarea anulada',()=>api().anular(d.id,false));break;
+  case'share':ui.share=ui.share===d.id?null:d.id;render();break;
+  case'shareFin':ui.share=null;render();break;
+  case'shareTog':{const r=reg(d.r);let con=parts(r).filter(i=>i!==r.autor);if(con.includes(d.id))con=con.filter(x=>x!==d.id);else con.push(d.id);
+    if(!con.includes(d.id)||quedaValidador(con))hacer(()=>api().compartir(d.r,con),()=>con.length?`Compartida con ${nombres(con)} · ${fmt(r.puntos/(con.length+1))} pts cada uno`:'Ya no es compartida');
+    else aviso('Tiene que quedar al menos una persona para validar.');break}
+  /* demo */
+  case'reloj':S.demo.offset+=6*H;guardar();render();aviso('Reloj adelantado 6 horas. Mira cómo vencen los plazos.');break;
+  case'relojReal':S.demo.offset=0;guardar();render();break;
+  /* administración */
+  case'preset':{const[i,f]=rango(d.p);$('#pIni').value=aInput(i);$('#pFin').value=aInput(f);break}
+  case'guardarPer':{const i=$('#pIni').value,f=$('#pFin').value;if(!i||!f||deInput(f)<deInput(i)){aviso('Revisa las fechas: el final no puede ser anterior al inicio.');return}
+    const per=periodoActual();hacer(()=>api().guardarPeriodo({id:per&&per.id,inicio:inicioDia(deInput(i)),fin:finDia(deInput(f)),premio:$('#pPremio').value.trim()}),'Periodo guardado');break}
+  case'nuevoPer':{const per=periodoActual(),len=per.fin-per.inicio,ini=inicioDia(now());
+    hacer(async()=>{await api().cerrarPeriodo(per.id,true);await api().guardarPeriodo({inicio:ini,fin:finDia(ini+len),premio:per.premio})},'Nuevo periodo en marcha. Revisa el premio.');break}
+  case'addM':{const n=$('#nuevoM').value.trim(),em=$('#nuevoE')?$('#nuevoE').value.trim().toLowerCase():null;
+    if(!n){aviso('Escribe un nombre para añadir al miembro.');return}if(S.nube&&!emailOk(em||'')){aviso('Escribe el email con el que entrará en la app.');return}
+    hacer(()=>api().guardarMiembro({nombre:n,email:em}),S.nube?`${n} añadido. Envíale el enlace de la app para que entre con ${em}.`:`${n} se ha unido a la casa`);break}
+  case'guardarM':{const m=S.miembros.find(x=>x.id===d.id),n=$('#mn-'+d.id).value.trim(),ad=$('#ma-'+d.id).checked,ei=$('#me-'+d.id),em=ei?ei.value.trim().toLowerCase():null;
+    if(!ad&&m.admin&&vivos(S.miembros).filter(x=>x.admin).length===1){aviso('Tiene que haber al menos un administrador.');return}
+    if(ei&&!emailOk(em)){aviso('Revisa el email: no parece válido.');return}
+    hacer(()=>api().guardarMiembro({id:m.id,nombre:n||m.nombre,admin:ad,email:em}),'Miembro guardado');break}
+  case'quitarM':{const m=S.miembros.find(x=>x.id===d.id);if(m.id===S.yo){aviso('No puedes quitarte a ti mismo.');return}
+    if(m.admin&&vivos(S.miembros).filter(x=>x.admin).length===1){aviso('Es el único administrador. Nombra a otro antes de quitarlo.');return}
+    hacer(()=>api().guardarMiembro({id:m.id,activo:false}),`${m.nombre} ya no participa`,()=>api().guardarMiembro({id:m.id,activo:true}));break}
+  case'nuevaTarea':{if(!esAdmin())return;ui.nueva={id:'nueva',nombre:ui.q.trim(),cat:ui.cat!=='Todas'?ui.cat:'Otras',c:1,t:1,m:1,ajuste:null,activa:true};ui.editT='nueva';view='ajustes';render();
+    setTimeout(()=>{const x=document.getElementById('en-nueva');if(x){x.scrollIntoView({block:'center'});x.focus()}},50);break}
+  case'editT':ui.editT=d.id;ui.nueva=null;render();break;
+  case'cancT':ui.editT=null;ui.nueva=null;render();break;
+  case'guardarT':{const datos=leerTareaForm(d.id);if(!datos.nombre){aviso('La tarea necesita un nombre.');return}
+    hacer(async()=>{await api().guardarTarea(d.id==='nueva'?null:d.id,datos);ui.editT=null;ui.nueva=null},()=>`«${datos.nombre}» guardada · ${ptsTarea(datos)} pts`);break}
+  case'quitarT':{const t=S.tareas.find(x=>x.id===d.id);hacer(async()=>{await api().guardarTarea(t.id,{borrado:true});ui.editT=null},`«${t.nombre}» quitada del catálogo`,()=>api().guardarTarea(t.id,{borrado:false}));break}
+  case'guardarReglas':{const v=k=>parseFloat($('#r-'+k).value),p={};for(const k of['pC','pT','pM','mult','bonus','sancion','plazoH']){const x=v(k);if(isNaN(x)||x<0){aviso('Revisa los números: no pueden estar vacíos ni ser negativos.');return}p[k]=x}
+    p.plazoH=Math.max(1,p.plazoH);p.quorum=parseFloat($('#r-quorum').value);hacer(()=>api().guardarReglas(p),'Reglas guardadas');break}
+  case'copiarEnlace':navigator.clipboard.writeText(urlApp()).then(()=>aviso('Enlace copiado. Pégalo en WhatsApp.'),()=>aviso('Tu navegador no permite copiar. Mantén pulsado el enlace para copiarlo.'));break;
+  case'sync':hacer(()=>recargar(),'Datos actualizados');break;
+  /* copias y apariencia */
+  case'exportar':descargar(`porfin-copia-${aInput(Date.now())}.json`,JSON.stringify(S,null,2));aviso('Copia descargada');break;
+  case'copiar':navigator.clipboard.writeText(JSON.stringify(S)).then(()=>aviso('Copia copiada al portapapeles'),()=>aviso('Tu navegador no permite copiar. Usa «Descargar copia».'));break;
+  case'importar':$('#fJson').click();break;
+  case'confImp':S=ui.imp;ui.imp=null;view='inicio';guardar();render();aviso('Copia cargada');break;
+  case'cancImp':ui.imp=null;render();break;
+  case'xls':$('#fXls').click();break;
+  case'tema':prefs.tema=d.t;guardarPrefs();render();break;
+  case'borrar':ui.borrar=true;render();break;
+  case'noBorrar':ui.borrar=false;render();break;
+  case'borrarYa':escribir(KEY,null);S=null;modo=null;prefs.modo=null;guardarPrefs();ui.borrar=false;view='inicio';render();aviso('Datos borrados');break;
+  }});
+document.addEventListener('submit',async e=>{e.preventDefault();const l=ui.login;if(!l||l.enviando)return;
+  if(e.target.id==='fEmail'){const em=$('#lEmail').value.trim().toLowerCase();l.email=em;
+    if(!emailOk(em)){l.error='Escribe un email válido, por ejemplo nombre@gmail.com.';render();return}
+    l.enviando=true;l.error=null;render();
+    try{const {error}=await sb.auth.signInWithOtp({email:em,options:{shouldCreateUser:true}});if(error)throw error;
+      prefs.email=em;guardarPrefs();ui.login={paso:'codigo',email:em};render();setTimeout(()=>{const i=$('#lCodigo');i&&i.focus()},50)}
+    catch(err){l.enviando=false;l.error=msgError(err);render()}}
+  if(e.target.id==='fCodigo'){const code=$('#lCodigo').value.replace(/\D/g,'');
+    if(code.length<6){l.error='El código tiene 6 cifras. Cópialo del correo.';render();return}
+    l.enviando=true;l.error=null;render();
+    try{const {data,error}=await sb.auth.verifyOtp({email:l.email,token:code,type:'email'});if(error)throw error;
+      sesion=data.session;ui.login=null;await entrarNube()}
+    catch(err){l.enviando=false;l.error=msgError(err);render()}}
+});
+document.addEventListener('input',e=>{if(e.target.id==='q'){ui.q=e.target.value;pintarTareas()}});
+document.addEventListener('change',e=>{const k=e.target.dataset.change;if(!k)return;
+  if(k==='yo'){S.yo=e.target.value;guardar();render();aviso(`Ahora estás como ${yo().nombre}`)}
+  if(k==='per'){ui.panelPer=e.target.value;if(modo==='nube')hacer(()=>recargar());else render()}
+  if(k==='casa'){prefs.casa=e.target.value;guardarPrefs();entrarNube()}
+  if(k==='json'&&e.target.files[0]){const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(o.version!==1||!Array.isArray(o.miembros)||!Array.isArray(o.registros))throw 0;ui.imp=o;render()}catch(_){aviso('Ese archivo no es una copia de ¡Por Fin!. Elige el .json que descargaste desde Ajustes.')}};r.readAsText(e.target.files[0]);e.target.value=''}
+  if(k==='xls'&&e.target.files[0]){const f=e.target.files[0];e.target.value='';const r=new FileReader();
+    r.onload=()=>hacer(async()=>api().importarTareas(await leerExcel(r.result)),x=>`Catálogo importado: ${x.actualizadas} tareas actualizadas y ${x.nuevas} nuevas.`);r.readAsArrayBuffer(f)}
+});
+document.addEventListener('focusout',()=>setTimeout(()=>{if(ui.sucio&&!(document.activeElement&&document.activeElement.matches('input,select,textarea')))refrescar()},300));
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){if(modo==='nube')sincronizar();else if(S)refrescar()}});
+window.addEventListener('online',()=>sincronizar());
+setInterval(()=>{if(document.visibilityState!=='visible'||!S)return;if(modo==='nube')sincronizar();else if(view==='inicio')refrescar()},60000);
+setInterval(()=>{if(S&&view==='inicio'&&document.visibilityState==='visible')refrescar()},30000);
+
+/* ---------- arranque ---------- */
+async function arrancar(){
+  prefs=leer(KPREF)||{};aplicarTema();
+  if(CFG.url&&CFG.key&&window.supabase){
+    try{sb=window.supabase.createClient(CFG.url,CFG.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'porfin-sesion'}});
+      sb.auth.onAuthStateChange((ev,s)=>{sesion=s;if(ev==='SIGNED_OUT'&&modo==='nube'){S=null;modo=null;render()}});
+      const {data}=await sb.auth.getSession();sesion=data.session;
+    }catch(e){console.error(e);sb=null}
+  }
+  if(sb&&sesion&&prefs.modo!=='local'){await entrarNube();return}
+  if(prefs.modo==='local'){S=leer(KEY);if(S){modo='local'}}
+  render();
+}
+arrancar();
+</script>
+</body>
+</html>
